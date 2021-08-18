@@ -1,3 +1,27 @@
+# CLJS Playground
+(the second one)
+
+This is mostly used as a scratchpad for ClojureScript learning. I currently only use devcards.
+
+
+### To run
+
+`yarn cards` or `npm run cards`
+
+Then open [http://localhost:3000/](http://localhost:3000/)
+
+
+
+
+
+
+
+
+
+
+## Boilerplate output
+-------
+
 This project was bootstrapped with [Create CLJS App](https://github.com/filipesilva/create-cljs-app).
 
 ## Available Scripts

@@ -1,0 +1,16 @@
+/* Shared contexts css */
+.content, .edit-layer, .canvas {
+  width: 500px;
+  height: 500px;
+  padding: 0;
+  margin: 0;
+}
+
+.canvas {
+  position: absolute;
+}
+
+.selection {
+  position: absolute;
+  border: 3px dashed red;
+}
