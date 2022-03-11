@@ -15,18 +15,13 @@ Then open [http://localhost:3000/](http://localhost:3000/)
 
 
 
-
-
-
-
-## Boilerplate output
 -------
 
 This project was bootstrapped with [Create CLJS App](https://github.com/filipesilva/create-cljs-app).
 
 ## Available Scripts
 
-In the project directory, you can run:
+You can also run:
 
 ### `yarn start`
 

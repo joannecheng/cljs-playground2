@@ -9,7 +9,8 @@
             ["jsdom-global" :as jsdom-global]
             ; Import all namespaces with cards here to load them.
             [app.cards.hello-cards]
-            [app.cards.mutation-observer]))
+            [app.cards.mutation-observer]
+            [app.cards.undo-editor]))
 
 ; Set jsdom to mock a dom environment for node testing.
 (jsdom-global)
