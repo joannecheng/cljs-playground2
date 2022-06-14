@@ -16,7 +16,7 @@ Then open [http://localhost:3000/](http://localhost:3000/)
 
 
 -------
-
+### Template notes:
 This project was bootstrapped with [Create CLJS App](https://github.com/filipesilva/create-cljs-app).
 
 ## Available Scripts
