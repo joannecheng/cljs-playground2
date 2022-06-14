@@ -14,8 +14,24 @@
 (s/def ::todo (s/keys :req-un [::id ::title ::done?]))
 (s/def ::todos (s/coll-of ::todo))
 
+(s/def ::db (s/keys :req-un [::todos]))
+
 (def default-db
   {:todos []})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; interceptors
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(def check-db-interceptor
+  (re-frame.core/->interceptor
+   :id      :check-db
+   :after  (fn [context]
+             (let [db (get-in context [:effects :db])]
+               (if (s/valid? ::db db)
+                 context
+                 (throw (ex-info (str "Failed clojure.spec:"
+                                      (s/explain ::db db)) {})))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; events
@@ -30,12 +46,14 @@
 
 (rf/reg-event-fx
  :initialize
+ [check-db-interceptor]
  (fn [_ _]
    {:db default-db}))
 
 (rf/reg-event-db
  :add-todo
- (undoable "Add todo")
+ [check-db-interceptor
+  #_(undoable "Add todo")]
  (fn [db [_ todo]]
    (let [next-id (generate-id db)]
      (-> db
@@ -69,8 +87,6 @@
     [:button (cond-> {:on-click #(dispatch [:undo])}
                (not undos?) (assoc :disabled "disabled"))
      "Undo"]))
-
-(some? nil)
 
 (defn input-field []
   (r/with-let [!content (r/atom "")
