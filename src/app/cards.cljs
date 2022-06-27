@@ -10,7 +10,8 @@
             ; Import all namespaces with cards here to load them.
             [app.cards.hello-cards]
             [app.cards.mutation-observer]
-            [app.cards.undo-editor]))
+            [app.cards.undo-editor]
+            [app.cards.js-interop-talk]))
 
 ; Set jsdom to mock a dom environment for node testing.
 (jsdom-global)
