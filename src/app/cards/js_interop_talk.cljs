@@ -58,11 +58,9 @@
 
   (clj->js [1 2 3 4 5])
 
-  ;; These are handy when you use a third party JS library and need to send it data
-  ;; Speaking of third party JS libraries, how do you get them in your project?
-
-
-
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+  ;; Modifying 
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
   ;; If you find yourself needing to apply some changes to your JS objects/arrays,
   ;; there are some helpful functions
 
@@ -89,6 +87,12 @@
   ;; (example: window.location.href)
   ;; Use google closure getters (`gobj/get`, `gobj/getValueInKeys`) when dealing with any
   ;; dynamic JS objects (eg: a JSON response from an endpoint
+
+
+
+  ;; These are handy when you use a third party JS library and need to send it data
+  ;; Speaking of third party JS libraries, how do you get them in your project?
+
 
 
   ;; Promises (and putting this all together)
@@ -139,16 +143,20 @@
   There are several ways to work with JS promises in ClojureScript
 
   ## Directly calling js/Promise
-  * refernce: (Promises in ClojureScript)[https://gist.github.com/pesterhazy/c4bab748214d2d59883e05339ce22a0f]
+  * refernce: [Promises in ClojureScript](https://gist.github.com/pesterhazy/c4bab748214d2d59883e05339ce22a0f )
 
   ## Async/Await
-  * (Using Promesa)[https://github.com/funcool/promesa]")
+  * [Using Promesa](https://github.com/funcool/promesa)")
 
 
 (def !resp (atom nil))
+(defn k->f [k]
+  (-> (- k 273.15)
+      (* 1.8)
+      (+ 32)))
 
 (defn promise-example+
-  "Getting the weather for Richmond, VA"
+  "Getting the temperature for Richmond, VA"
   []
   (let [url (str "https://api.openweathermap.org/data/2.5/weather?lat="
                  37.5407
@@ -162,7 +170,10 @@
         (.catch #(prn "ERROR")))))
 (promise-example+)
 @!resp
-;; => #js {:coord #js {:lon -77.435, :lat 37.5366}, :weather #js [#js {:id 803, :main "Clouds", :description "broken clouds", :icon "04d"}], :base "stations", :main #js {:temp 298.9, :feels_like 299.57, :temp_min 297.34, :temp_max 299.61, :pressure 1017, :humidity 78}, :visibility 10000, :wind #js {:speed 5.14, :deg 210}, :clouds #js {:all 75}, :dt 1656336825, :sys #js {:type 2, :id 2007417, :country "US", :sunrise 1656323430, :sunset 1656376495}, :timezone -14400, :id 6254928, :name "Virginia", :cod 200}
+
+(-> @!resp
+    (gobj/getValueByKeys #js ["main" "temp"])
+    k->f)
 
 (defn weather-url [lat lng]
   (str "https://api.openweathermap.org/data/2.5/weather?lat="
@@ -172,15 +183,25 @@
        "&appid="
        "2b4703d8df2665d833055a65aef9e49a"))
 
+(def !richmond-resp (atom nil))
+(def !abq-resp (atom nil))
 (defn promise-all-example+
   "Getting the weather for Richmond, VA and Albuquerque, NM"
   []
-  (let [url (str "https://api.openweathermap.org/data/2.5/weather?lat="
-                 37.5407
-                 "&lon="
-                 -77.4360
-                 "&appid="
-                 "2b4703d8df2665d833055a65aef9e49a")]))
+  (let [richmond (weather-url 37.5407 -77.4360)
+        abq (weather-url 35.0844 106.6504)]
+    (prn richmond abq)
+    (-> (js/Promise.all #js [(-> (js/fetch richmond) (.then #(.json %)))
+                             (-> (js/fetch abq) (.then #(.json %)))])
+        (.then (fn [[richmond-resp abq-resp]]
+                 (reset! !richmond-resp richmond-resp)
+                 (reset! !abq-resp abq-resp))))))
+
+(promise-all-example+)
+(-> @!richmond-resp
+    (gobj/getValueByKeys #js ["weather" 0 "description"]))
+(-> @!abq-resp
+    (gobj/getValueByKeys #js ["weather" 0 "description"]))
 
 ;; Note: if you need async/await-like syntax, you can look into kitchen-async or core.async
 ;; I am not familiar with those ways of working, using native browser Promises works well for me
