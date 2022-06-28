@@ -33,4 +33,4 @@
    [click-counter click-count]
    [:hr]
    [:p "D3 Example"]
-   [draw-box-button]])
+   #_[draw-box-button]])

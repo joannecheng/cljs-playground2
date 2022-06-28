@@ -71,8 +71,16 @@
   arr
   ;; => #js [1 2 10000 4 5]
 
-  ;; For objects: use goog.object/get and goog.object/set
-  (def new-obj #js {:full-name "Joanne" :occupation "Software Developer"})
+  ;; Objects
+  ;; document.body.style.backgroundColor = "red";
+  (set! (.. js/document -body -style -backgroundColor) "red")
+  (set! (.. js/document -body -style -backgroundColor) "#fefefe")
+
+  ;; For dynamic objects:
+  ;; use goog.object/get and goog.object/set
+  (def js-obj-from-json-endpoint
+    #js {:full-name "Joanne" :occupation "Software Developer"})
+
   (goog.object/get new-obj "full-name")
   (goog.object/set new-obj "full-name" "Joanne Cheng")
   new-obj
@@ -81,19 +89,19 @@
   ;; What is this 'goog.object' thing? This is from the Google Closure Library/compiler.
   ;; Remember when we talked about externing above?
 
-
   ;; General Rules when accessing JS obj properties:
-  ;; Use the `.-` notation when you access anything in the js namespace or with externs
+  ;; Use the `.-` notation when you access anything in the js namespace or something
+  ;; with externs
   ;; (example: window.location.href)
-  ;; Use google closure getters (`gobj/get`, `gobj/getValueInKeys`) when dealing with any
-  ;; dynamic JS objects (eg: a JSON response from an endpoint
+  ;;
+  ;; Use google closure fns (`gobj/get`, `gobj/getValueInKeys`) when dealing with any
+  ;; dynamic JS objects (example: a JSON response from an endpoint)
+  ;; (there's also applied-science/js-interop but you can read about that on your
+  ;; own)
+  ;; These are useful when you use a third party JS library and need to send it data
+  ;; without breaking advanced compilation (we'll talk about that later!)
 
-
-
-  ;; These are handy when you use a third party JS library and need to send it data
   ;; Speaking of third party JS libraries, how do you get them in your project?
-
-
 
   ;; Promises (and putting this all together)
   )
@@ -191,15 +199,20 @@
   (let [richmond (weather-url 37.5407 -77.4360)
         abq (weather-url 35.0844 106.6504)]
     (prn richmond abq)
-    (-> (js/Promise.all #js [(-> (js/fetch richmond) (.then #(.json %)))
-                             (-> (js/fetch abq) (.then #(.json %)))])
+    (-> (js/Promise.all [(-> (js/fetch richmond) (.then #(.json %)))
+                         (-> (js/fetch abq) (.then #(.json %)))])
         (.then (fn [[richmond-resp abq-resp]]
                  (reset! !richmond-resp richmond-resp)
                  (reset! !abq-resp abq-resp))))))
 
 (promise-all-example+)
+
+(-> @!richmond-resp
+    (gobj/getValueByKeys #js ["main" "temp"])
+    (-> k->f))
 (-> @!richmond-resp
     (gobj/getValueByKeys #js ["weather" 0 "description"]))
+
 (-> @!abq-resp
     (gobj/getValueByKeys #js ["weather" 0 "description"]))
 
